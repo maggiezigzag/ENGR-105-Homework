@@ -1,0 +1,246 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>piratePathSimulation</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-11-10"><meta name="DC.source" content="piratePathSimulation.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> piratePathSimulation(map,nSimulations,rations)
+<span class="comment">%function finding the best starting latitude for ship</span>
+<span class="comment">%navigation</span>
+
+load(<span class="string">'knownMap.mat'</span>);
+
+<span class="comment">%setting the number of successes for each latitude to</span>
+<span class="comment">%'counter'</span>
+counter=zeros(1,size(map,1));
+<span class="comment">% loop through all the latitudes</span>
+<span class="keyword">for</span> i=1:size(map,1)
+    <span class="comment">%setting the number of succeses to 0 at the start</span>
+    numSuccess=0;
+    <span class="comment">%setting the x and y starting positions of the ship</span>
+    yPos=i;
+    xPos=size(map,2);
+<span class="comment">%     loop through #simulations for each latitude</span>
+    <span class="keyword">for</span> j=1:nSimulations
+<span class="comment">%         reset x and y pos and turns</span>
+        yPos=i;
+        xPos=size(map,2);
+        <span class="comment">%setting number of ship moves/turns to 0</span>
+        turns=0;
+        <span class="comment">%looping until the ship reaches the port</span>
+        <span class="keyword">while</span> xPos&gt;1
+            <span class="comment">%adding one move/turn per loop that the</span>
+            <span class="comment">%ship isn't in port</span>
+            turns=turns+1;
+            <span class="comment">%moves ship west if there is water</span>
+            <span class="keyword">if</span> map(yPos,xPos-1)==0
+                xPos=xPos-1;
+            <span class="comment">%does a random number generator for moving</span>
+            <span class="comment">%ship east, north, or south if west is</span>
+            <span class="comment">%blocked by land</span>
+            <span class="keyword">else</span>
+                <span class="comment">%keeps going until ship moves</span>
+                movement=false;
+                <span class="keyword">while</span> movement==false
+                    move=randi(3);
+                    <span class="comment">%checks if ship can move north, and</span>
+                    <span class="comment">%moves if yes</span>
+                    <span class="keyword">if</span> move==1
+                        <span class="keyword">if</span>  yPos+1&lt;=size(map,1) &amp;&amp; map(yPos+1,xPos)==0
+                            yPos=yPos+1;
+                            movement=true;
+                        <span class="keyword">end</span>
+                    <span class="comment">%checks if ship can move east, and</span>
+                    <span class="comment">%moves if yes</span>
+                    <span class="keyword">elseif</span> move==2
+                        <span class="keyword">if</span> xPos+1&lt;=size(map,2) &amp;&amp; map(yPos,xPos+1)==0
+                            xPos=xPos+1;
+                            movement=true;
+                        <span class="keyword">end</span>
+                    <span class="comment">%checks if ship can move south, and</span>
+                    <span class="comment">%moves if yes</span>
+                    <span class="keyword">else</span>
+                        <span class="keyword">if</span> yPos-1&gt;0 &amp;&amp; map(yPos-1,xPos)==0
+                            yPos=yPos-1;
+                            movement=true;
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+      <span class="comment">%sets condition such that if number of turns was</span>
+      <span class="comment">%less than or equal to number of rations,</span>
+      <span class="comment">%successes gets increased by 1</span>
+        <span class="keyword">if</span> turns&lt;=rations
+            numSuccess=numSuccess+1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="comment">%    updates number of successes for each y coordinate</span>
+    counter(i)=numSuccess;
+<span class="keyword">end</span>
+<span class="comment">%sets bar graph of results</span>
+bar(counter);
+<span class="comment">%sets x limit of axes</span>
+xlim([1,size(map,1)]);
+<span class="comment">%sets x/y labels and title</span>
+xlabel(<span class="string">'Latitude (row) entrance point'</span>);
+ylabel({<span class="string">'Number of times'</span>;<span class="string">'port was reached'</span>;<span class="string">'in 150 simulations'</span>});
+title(<span class="string">'MapQuest'</span>)
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in piratePathSimulation (line 18)
+    for j=1:nSimulations
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function piratePathSimulation(map,nSimulations,rations)
+%function finding the best starting latitude for ship
+%navigation
+
+load('knownMap.mat');
+
+%setting the number of successes for each latitude to
+%'counter'
+counter=zeros(1,size(map,1));
+% loop through all the latitudes
+for i=1:size(map,1)  
+    %setting the number of succeses to 0 at the start
+    numSuccess=0;
+    %setting the x and y starting positions of the ship
+    yPos=i;
+    xPos=size(map,2);
+%     loop through #simulations for each latitude
+    for j=1:nSimulations
+%         reset x and y pos and turns
+        yPos=i;
+        xPos=size(map,2);
+        %setting number of ship moves/turns to 0
+        turns=0;
+        %looping until the ship reaches the port
+        while xPos>1
+            %adding one move/turn per loop that the
+            %ship isn't in port
+            turns=turns+1; 
+            %moves ship west if there is water 
+            if map(yPos,xPos-1)==0    
+                xPos=xPos-1;
+            %does a random number generator for moving
+            %ship east, north, or south if west is
+            %blocked by land
+            else
+                %keeps going until ship moves
+                movement=false;
+                while movement==false
+                    move=randi(3);
+                    %checks if ship can move north, and
+                    %moves if yes
+                    if move==1
+                        if  yPos+1<=size(map,1) && map(yPos+1,xPos)==0
+                            yPos=yPos+1;
+                            movement=true;
+                        end
+                    %checks if ship can move east, and
+                    %moves if yes
+                    elseif move==2
+                        if xPos+1<=size(map,2) && map(yPos,xPos+1)==0 
+                            xPos=xPos+1;
+                            movement=true;
+                        end
+                    %checks if ship can move south, and
+                    %moves if yes
+                    else
+                        if yPos-1>0 && map(yPos-1,xPos)==0
+                            yPos=yPos-1;
+                            movement=true;
+                        end
+                    end
+                end
+            end  
+            
+        end
+      %sets condition such that if number of turns was
+      %less than or equal to number of rations,
+      %successes gets increased by 1
+        if turns<=rations
+            numSuccess=numSuccess+1;
+        end
+    end
+%    updates number of successes for each y coordinate 
+    counter(i)=numSuccess;
+end
+%sets bar graph of results
+bar(counter);
+%sets x limit of axes
+xlim([1,size(map,1)]);
+%sets x/y labels and title
+xlabel('Latitude (row) entrance point');
+ylabel({'Number of times';'port was reached';'in 150 simulations'});
+title('MapQuest')
+
+end
+##### SOURCE END #####
+--></body></html>
